@@ -1,6 +1,6 @@
 {
   "name": "host-your-folder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -22,5 +22,8 @@
     "commander": "^5.1.0",
     "koa": "^2.12.1",
     "koa-static": "^5.0.0"
+  },
+  "cli": {
+    "host-your-folder": "./index.js"
   }
 }
