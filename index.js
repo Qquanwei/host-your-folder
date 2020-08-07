@@ -24,7 +24,7 @@ function checkFodlerValid(folder) {
 program.version(packageJSON.version)
     .name('host-your-folder')
     .usage('[folder]')
-    // .option('-p', '--port <port>', 'special listen port or random')
+    .option('-p, --port <port>', 'if special the port will be fixed')
     .arguments('[folder]')
     .action(function(folder = process.cwd()) {
         const fullPath = checkFodlerValid(folder);
