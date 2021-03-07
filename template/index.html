@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Your Folder</title>
+    <style type="text/css">
+        {{ styles }}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-wrapper">
+            <div class="col s12">
+                {% for path in paths %}
+                <a href="{{ path.location }}" class="breadcrumb">{{ path.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+    <ul class="container collection">
+    {% for entry in entities %}
+        {% if entry.isfolder %}
+        <li>
+            <a href="{{ entry.name }}"> {{ entry.name }} </a></li>
+        {% else %}
+        <li> {{ entry.name }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    <script>
+        {{ scripts }}
+    </script>
+</body>
+</html>
