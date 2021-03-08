@@ -13,7 +13,7 @@ const readdir = util.promisify(fs.readdir);
 const stat = util.promisify(fs.stat);
 const readFile = util.promisify(fs.readFile);
 
-nunjucks.configure({ autoescape: false, noCache: false });
+nunjucks.configure(path.resolve(__dirname, 'template'), { autoescape: false, noCache: false });
 
 async function defaultPage(ctx) {
     const location = url.parse(ctx.url);
@@ -42,7 +42,7 @@ async function defaultPage(ctx) {
             }];
         }, []);
 
-        ctx.body = nunjucks.render(path.resolve(__dirname, './template/index.html'), {
+        ctx.body = nunjucks.render('index.html', {
             entities,
             paths: parents
         });
