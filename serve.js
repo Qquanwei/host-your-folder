@@ -6,48 +6,55 @@ const fs = require('graceful-fs');
 const path = require('path');
 const Router = require('koa-router');
 const util = require('util');
-
+const mount = require('koa-mount');
+const url = require('url');
 const router = new Router();
 const readdir = util.promisify(fs.readdir);
 const stat = util.promisify(fs.stat);
 const readFile = util.promisify(fs.readFile);
 
-nunjucks.configure({ autoescape: false });
+nunjucks.configure({ autoescape: false, noCache: false });
 
 async function defaultPage(ctx) {
-    const fileList = await readdir('./');
+    const location = url.parse(ctx.url);
+    const pathname = path.join(process.cwd(), location.pathname);
 
-    const entities = await Promise.all(fileList.map(async fileName => {
-        const entity = await stat(fileName);
-        return {
-            name: fileName,
-            isfolder: entity.isDirectory()
-        }
-    }));
-    const styles = await readFile(path.resolve(__dirname, './template/materialize.min.css'));
-    const scripts = await readFile(path.resolve(__dirname, './template/materialize.min.js'));
-    const parents = ['a', 'b', 'c'].reduce((his, cur) => {
-        return [...his, {
-            name: cur,
-            location: his.length ? path.resolve(his[his.length - 1].location, cur) : cur
-        }];
-    }, []);
+    if (fs.existsSync(pathname)) {
+        const fileList = await readdir(pathname);
 
-    ctx.body = nunjucks.render(path.resolve(__dirname, './template/index.html'), { 
-        entities, 
-        styles, 
-        scripts,
-        paths: parents
-     });
+        const entities = await Promise.all(fileList.map(async fileName => {
+            const fullpath = path.join(pathname, fileName)
+            const entity = await stat(fullpath);
+
+            return {
+                name: fileName,
+                location: path.relative(process.cwd(), fullpath),
+                isfolder: entity.isDirectory()
+            }
+        }));
+
+
+        const relatives = path.relative(process.cwd(), pathname);
+        const parents = ['/'].concat(relatives.split('/')).reduce((his, cur) => {
+            return [...his, {
+                name: cur,
+                location: his.length ? path.resolve(his[his.length - 1].location, cur) : cur
+            }];
+        }, []);
+
+        ctx.body = nunjucks.render(path.resolve(__dirname, './template/index.html'), {
+            entities,
+            paths: parents
+        });
+    }
 }
 
 module.exports = function (fullPath, port) {
     const app = new koa();
-    router.get('/', defaultPage);
 
-    app.use(staticServe(fullPath, { gzip: false }))
-    app.use(router.routes());
-    app.use(router.allowedMethods());
+    app.use(staticServe(fullPath, { gzip: false, hidden: true }))
+    app.use(mount('/_internal', staticServe(path.resolve(__dirname, './template'), { gzip: true })));
+    app.use(defaultPage);
 
 
     const server = app.listen(port || 0, () => {

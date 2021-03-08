@@ -4,32 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Host Your Folder</title>
-    <style type="text/css">
-        {{ styles }}
-    </style>
+    <link href="/_internal/materialize.min.css" rel="stylesheet"/>
+    <link href="/_internal/icon.css" rel="stylesheet"/>
 </head>
 <body>
-    <nav>
-        <div class="nav-wrapper">
-            <div class="col s12">
-                {% for path in paths %}
-                <a href="{{ path.location }}" class="breadcrumb">{{ path.name }}</a>
-                {% endfor %}
+    <div>
+        <nav class="row">
+            <div class="nav-wrapper">
+                <div class="col s12">
+                    {% for path in paths %}
+                    <a href="{{ path.location }}" class="breadcrumb">{{ path.name }}</a>
+                    {% endfor %}
+                </div>
             </div>
+        </nav>
+
+        <div class="row">
+            <ul class="collection col m12 s12">
+                {% for entry in entities %}
+                {% if entry.isfolder %}
+                <li class="collection-item">
+                    <a href="/{{ entry.location}}">
+                        {{ entry.name }}
+                    </a>
+                    <span class="badge">
+                        <i class="material-icons">folder</i>
+                    </span>
+                </li>
+                {% else %}
+                <li class="collection-item">
+                    <a href="/{{ entry.location }}">
+                        {{ entry.name }}
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
         </div>
-    </nav>
-    <ul class="container collection">
-    {% for entry in entities %}
-        {% if entry.isfolder %}
-        <li>
-            <a href="{{ entry.name }}"> {{ entry.name }} </a></li>
-        {% else %}
-        <li> {{ entry.name }}</li>
-        {% endif %}
-    {% endfor %}
-    </ul>
-    <script>
-        {{ scripts }}
+    </div>
+
+    <script src="/_internal/materialize.min.js"></script>
+    <script type="text/javascript">
+    M.AutoInit();
     </script>
 </body>
 </html>
