@@ -1,5 +1,4 @@
 const koa = require('koa');
-const opn = require('better-opn');
 const staticServe = require('koa-static');
 const nunjucks = require('nunjucks');
 const fs = require('graceful-fs');
@@ -49,7 +48,7 @@ async function defaultPage(ctx) {
     }
 }
 
-module.exports = function (fullPath, port) {
+module.exports = function (fullPath, port, onSuccess) {
     const app = new koa();
 
     app.use(staticServe(fullPath, { gzip: false, hidden: true }))
@@ -60,6 +59,11 @@ module.exports = function (fullPath, port) {
     const server = app.listen(port || 0, () => {
         const address = server.address();
         console.info(`listen on ${address.address}:${address.port}`);
-        opn(`http://localhost:${address.port}`)
+
+        if (onSuccess) {
+            onSuccess(address);
+        }
     });
+
+    return server;
 }
